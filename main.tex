@@ -222,33 +222,51 @@ Analicemos un poco el problema desde lo más básico, que es X-Plane y que es un
 	\fullsizegraphic{diagrama-fsuipc-step-1.pdf}
 \end{frame}
 
-\begin{frame}{Comparación}
-
-\end{frame}
-
 \subsection{Diseño final}
 \begin{frame}[noframenumbering]
 \subsectionpage
 \end{frame}
 
 \begin{frame}{Consideraciones}
-FSUIPC se acerca a lo solicitado
+\begin{itemize}
+	\item Condiciones de diseño
+	\begin{itemize}
+		\item<2-> Todas las opciones funcionan con X-Plane 9 y 10
+		\item<3-> Muy pocas alternativas diseñadas para microcontrolador
+		\item<4-> Las soluciones no son amigables
+	\end{itemize}
+	\item<5-> Decisiones tomadas
+	\begin{itemize}
+		\item<6-> Crear software intermediario personalizado
+		\item<7-> Construir sobre FSUIPC
+	\end{itemize}
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Diagrama}
-
+	\fullsizegraphic{diagrama-fssp-step-1.pdf}
 \end{frame}
 
 \begin{frame}{Programa intermediario}
-En base a FSUIPC, se crea nuevo programa en C++ que abra un protocolo de mensajes por los canales UDP y Serial, facilmente
+\begin{itemize}
+	\item Comunicación con simulador por plug-in FSUIPC
+	\item Abre dos canales de comunicación a equipos externos
+	\begin{itemize}
+		\item UDP (Red local)
+		\item Serial (USB)
+	\end{itemize}
+	\item<2-> Escrito en C++
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Protocolo}
-Strings y secuencias de bytes enviables por UDP y serial
+\begin{itemize}
+	\item Strings y secuencias de bytes enviables por UDP y serial
 
-Las strings se utilizan para establecer cuantas y cuales variables se enviaran y recibiran posteriormente en secuencias de bytes, ademas del envio de comandos puntuales
+	\item Las strings se utilizan para establecer cuantas y cuales variables se enviaran y recibiran posteriormente en secuencias de bytes, ademas del envio de comandos puntuales
 
-Las secuencias de bytes contienen la información establecida por las strings, usualmente variables que necesitan ser revisadas con frecuencia como el estado de la aeronave o el envio de comandos para el control
+	\item Las secuencias de bytes contienen la información establecida por las strings, usualmente variables que necesitan ser revisadas con frecuencia como el estado de la aeronave o el envio de comandos para el control
+\end{itemize}
 \end{frame}
 
 \section{Implementación}
@@ -256,29 +274,38 @@ Las secuencias de bytes contienen la información establecida por las strings, u
 \sectionpage
 \end{frame}
 
-\begin{frame}{Diagrama}
-Diagrama
-focus comunicación software intermediario xplane
-software intermediario microcontrolador
-\end{frame}
-
 \subsection{Comunicación}
 \begin{frame}{Software intermediario - X-Plane}
-
+\begin{itemize}
+	\item Creado con la libreria de desarrollo para plug-ins de FSUIPC
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Software intermediario - Microcontrolador}
-
+\begin{itemize}
+	\item Creado con libreria general para comunicación Serial
+	\item "" para comunicación por red (Windows Sockets 2)
+\end{itemize}
 \end{frame}
 
 \subsection{Protocolo}
 \begin{frame}{Comandos básicos}
-
+\begin{itemize}
+	\item Monitorear variables
+	\item Controlar variables
+\end{itemize}
 \end{frame}
 
 \subsection{QoL}
 \begin{frame}{Funcionalidad QoL}
 Interfaz grafica que muestra si esta conectado con el simulador, con el microcontrolador, los mensajes que recibe y un terminal para probar el envio y recepcion de mensajes
+\end{frame}
+
+\begin{frame}
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=0.8\textwidth]{fssp.png}
+\end{figure}
 \end{frame}
 
 \section{Conclusión}
