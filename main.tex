@@ -11,7 +11,7 @@
 \setmainfont{Gelasio}
 \usepackage{polyglossia}
 \setmainlanguage{spanish}
-\setbeameroption{show notes on second screen=bottom}
+% \setbeameroption{show notes on second screen=bottom}
 
 \newcommand<>{\fullsizegraphic}[1]{
 	\begin{tikzpicture}[remember picture,overlay]
@@ -20,6 +20,33 @@
 	};
 	\end{tikzpicture}
 }
+
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+\usepackage{dirtytalk}
 
 \title{Establecimiento de protocolo de comunicación entre X-Plane y microcontroladores externos}
 \subtitle{Proyecto de ingeniería aeroespacial}
@@ -37,6 +64,7 @@
 
 %% Introducción
 \section{Concepto}
+
 \begin{frame}{Concepto}
 En el simulador de vuelo del laboratorio de técnicas aeroespaciales, establecer un \emph{protocolo de comunicación} entre el software de simulación \emph{X-Plane} y \emph{microcontroladores externos}.
 \note{
@@ -46,15 +74,14 @@ Se define que en el laboratorio de técnicas aeroespaciales de la universidad de
 }
 \end{frame}
 
-\section{Actores en la comunicación}
+\subsection{Actores en la comunicación}
 \begin{frame}[noframenumbering]
-\sectionpage
+\subsectionpage
 \note{
 Analicemos un poco el problema desde lo más básico, que es X-Plane y que es un microcontrolador y por qué se querría establecer comunicación entre ellos
 }
 \end{frame}
 
-\subsection{X-Plane}
 \begin{frame}{X-Plane}
 \begin{itemize}
 	\item Software de simulación de vuelo
@@ -87,21 +114,22 @@ Analicemos un poco el problema desde lo más básico, que es X-Plane y que es un
 \begin{frame}
 \centering
 \includegraphics[width=0.8\textwidth]{xplane-steam.png}
+\footnotemark
+\footnotetext{\url{https://store.steampowered.com/app/2014780/XPlane_12/}}
 \end{frame}
 
-\subsection{Microcontrolador}
 \begin{frame}{Microcontroladores}
 \begin{itemize}
 	\item Pequeños dispositivos electrónicos integrados
 	\item<2-> Especializados
 	\item<3-> Interfaces estandarizadas ($I^2C$, Serial, UART)
-	\item<4-> Baratos
+	\item<4-> Bajo costo
 \end{itemize}
 \note<1>{
 	El microcontrolador es un dispositivo electrónico integrado que en sus formas más simples combina una unidad de procesamiento, memoria y alguna interfaz de entrada y salida de señales. Se podría decir que es como un computador, pero muy muy pequeño y utilizados para una sola tarea especifica.
 }
 \note<2>{
-	Una vez programado se tiene mucha seguridad que en cada encendido el microcontrolador ejecutara las órdenes tal cual fueron escritas y nada más.
+	Una vez programado se tiene mucha seguridad que en cada encendido el microcontrolador ejecutara las órdenes tal cual fueron escritas y nada más. Sin los problemas que podría ocasionar el tener un sistema operativo completo.
 }
 \note<3>{
 	Por lo general los microcontroladores habilitan una o más interfaces de comunicación con otros microcontroladores o cualquier dispositivo que implemente la misma interfaz. Algunos ejemplos son I2C, Serial y UART entre muchos otros.
@@ -135,10 +163,12 @@ Analicemos un poco el problema desde lo más básico, que es X-Plane y que es un
 \end{frame}
 
 \begin{frame}{Integración X-Plane - Microcontrolador}
+\large{Posibles aplicaciones}
+\vspace{1cm}
 \begin{itemize}
 	\item <2-> Desarrollar sistemas de control
 	\item <3-> Evaluar rendimiento de maniobras o en misiones
-	\item <4-> Código portable
+	\item <4-> Escribir código portable
 \end{itemize}
 \note<1>{
 	Veamos brevemente algunas aplicaciones en que la comunicación entre los actores podría ser beneficiosa
@@ -150,162 +180,200 @@ Analicemos un poco el problema desde lo más básico, que es X-Plane y que es un
 	Gracias a que se trabaja con simulaciones, es posible manipular el estado arbitrariamente y ejecutar maniobras de manera iterativa reiniciándolas una y otra vez con fines de optimización
 }
 \note<4>{
-	Para esta y todas las aplicaciones, el código al correr en un microcontrolador será completamente portable y podrá ser reimplementado a cualquier otro sistema o aeronave real mientras se pueda acceder a una interfaz de datos.
+	El código al correr en un microcontrolador será completamente portable y podrá ser reimplementado a cualquier otro sistema o aeronave real mientras se pueda acceder a una interfaz de datos.
 }
 \end{frame}
 
-%% Diseño del protocolo
-\section{Diseño de protocolo}
-\begin{frame}[noframenumbering]
-\sectionpage
-\end{frame}
-
-\subsection{Diseño preliminar}
-\begin{frame}{Diagrama preliminar}
-\foreach \n in {1,...,5}{
-	\only<\n>{\fullsizegraphic{diagrama-preliminar-step-\n.pdf}}
-}
-\end{frame}
-
+\subsection{Condiciones de diseño}
 \begin{frame}{Condiciones de diseño}
+El protocolo de comunicación establecido debe
 \begin{itemize}
-	\item<2-> En el simulador del laboratorio de técnicas aeroespaciales
-	\begin{itemize}
-		\item<3-> Funcionar con X-Plane 9 y 10
-	\end{itemize}
-	\item<4-> Funcionar en microcontroladores Arduino y Raspberry Pi Pico
-	\item<5-> Accesible para usuarios con poca experiencia programando
+	\item <2-> Permitir acceso general a las variables internas de simulación.
+	\item <3-> Funcionar en los microcontroladores más populares.
+	\item <4-> Ser accesible para alumnos del departamento.
 \end{itemize}
 \end{frame}
+
+\section{Establecimiento de protocolo}
 
 \subsection{Soluciones existentes}
 \begin{frame}[noframenumbering]
 \subsectionpage
 \end{frame}
 
-\begin{frame}{NASA X-Plane Communications Toolbox}
-\begin{figure}[t]
-	\centering
-	\includegraphics[width=0.9\textwidth]{nasa.png}
-	\footnotemark
-\end{figure}
-\footnotetext{\url{https://github.com/nasa/XPlaneConnect/wiki}}
+\begin{frame}{MobiFlight}
+	\begin{columns}
+		\begin{column}{0.3\textwidth}{
+			\begin{figure}[t]
+				\centering
+				\includegraphics[width=\textwidth]{mobiflight_git.png}
+				\footnotemark
+			\end{figure}
+		}
+		\end{column}
+		\begin{column}{0.69\textwidth}{
+			\begin{figure}[t]
+				\centering
+				\includegraphics[width=\textwidth]{mobiflight.jpg}
+				\footnotemark
+			\end{figure}
+		}
+		\end{column}
+	\end{columns}
+	\footnotetext[1]{\url{https://github.com/MobiFlight/MobiFlight-Connector}}
+	\footnotetext[2]{\href{https://www.youtube.com/watch?v=ja0tvTbaEnI}{Youtube - Mobiflight: Como usar un LCD Display / Using an LCD Display.}}
 \end{frame}
 
-\begin{frame}{NASA X-Plane Communications Toolbox}
-\fullsizegraphic{diagrama-nasa-step-1.pdf}
-\end{frame}
-
-\begin{frame}{Interfaz UDP integrada en X-Plane}
-\begin{figure}[t]
-	\centering
-	\includegraphics[width=0.7\textwidth]{xplane-udp.png}
-	\footnotemark
-\end{figure}
-\footnotetext{\url{https://www.x-plane.com/wp-content/uploads/2017/04/Manual_XPlane11_sp_web.pdf}}
-\end{frame}
-
-\begin{frame}{Interfaz UDP integrada en X-Plane}
-\fullsizegraphic{diagrama-nasa-step-1.pdf}
-\end{frame}
-
-\begin{frame}{\large Flight Simulator Universal Inter-Process Communication}
-\begin{figure}[t]
-	\centering
-	\includegraphics[width=0.9\textwidth]{fsuipc.png}
-	\footnotemark
-\end{figure}
-\footnotetext{\url{https://secure.simmarket.com/john-dowson-fsuipc7-for-msfs.phtml}}
+\begin{frame}{SimVim}
+	\begin{figure}[t]
+		\centering
+		\includegraphics[width=0.8\textwidth]{simvim.png}
+		\footnotemark
+	\end{figure}
+	\footnotetext{\url{https://simvim.com/}}
 \end{frame}
 
 \begin{frame}{\large Flight Simulator Universal Inter-Process Communication}
-	\fullsizegraphic{diagrama-fsuipc-step-1.pdf}
+	\begin{figure}[t]
+		\centering
+		\includegraphics[width=0.9\textwidth]{fsuipc.png}
+		\footnotemark
+	\end{figure}
+	\footnotetext{\url{https://secure.simmarket.com/john-dowson-fsuipc7-for-msfs.phtml}}
 \end{frame}
 
-\subsection{Diseño final}
+\begin{frame}{NASA X-Plane Communications Toolbox}
+	\begin{figure}[t]
+		\centering
+		\includegraphics[width=0.9\textwidth]{nasa.png}
+		\footnotemark
+	\end{figure}
+	\footnotetext{\url{https://github.com/nasa/XPlaneConnect/wiki}}
+\end{frame}
+
+\begin{frame}{Soluciones existentes}
+Observaciones
+\begin{itemize}
+	\item <2-> MobiFlight y SimVim están diseñados para crear paneles de instrumentos con microcontroladores.
+	\item <3-> FSUIPC y X-Plane Connect son de uso general, pero su documentación no contempla microcontroladores.
+\end{itemize}
+\visible<4-> {Conclusión}
+\begin{itemize}
+	\item <4-> Crear una nueva solución que cumpla las condiciones de diseño.
+\end{itemize}
+\end{frame}
+
+%% Diseño del protocolo
+
+\subsection{Diseño preliminar}
 \begin{frame}[noframenumbering]
 \subsectionpage
 \end{frame}
 
-\begin{frame}{Consideraciones}
+\begin{frame}{Características de nueva solución}
 \begin{itemize}
-	\item Condiciones de diseño
-	\begin{itemize}
-		\item<2-> Todas las opciones funcionan con X-Plane 9 y 10
-		\item<3-> Muy pocas alternativas diseñadas para microcontrolador
-		\item<4-> Las soluciones no son amigables
-	\end{itemize}
-	\item<5-> Decisiones tomadas
-	\begin{itemize}
-		\item<6-> Crear software intermediario personalizado
-		\item<7-> Construir sobre FSUIPC
-	\end{itemize}
+	\item <2-> Ser un programa intermediario entre el simulador y el microcontrolador.
+	\item <3-> Interactuar con simulador por medio de FSUIPC.
+	\item <4-> Extender FSUIPC con canales accesibles por microcontroladores.
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Diagrama}
-	\fullsizegraphic{diagrama-fssp-step-1.pdf}
-\end{frame}
-
-\begin{frame}{Programa intermediario}
-\begin{itemize}
-	\item Comunicación con simulador por plug-in FSUIPC
-	\item Abre dos canales de comunicación a equipos externos
-	\begin{itemize}
-		\item UDP (Red local)
-		\item Serial (USB)
-	\end{itemize}
-	\item<2-> Escrito en C++
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Protocolo}
-\begin{itemize}
-	\item Strings y secuencias de bytes enviables por UDP y serial
-
-	\item Las strings se utilizan para establecer cuantas y cuales variables se enviaran y recibiran posteriormente en secuencias de bytes, ademas del envio de comandos puntuales
-
-	\item Las secuencias de bytes contienen la información establecida por las strings, usualmente variables que necesitan ser revisadas con frecuencia como el estado de la aeronave o el envio de comandos para el control
-\end{itemize}
-\end{frame}
+	\foreach \n in {1,...,4}{
+		\only<\n>{\fullsizegraphic{diagrama-fssp-step-\n.pdf}}
+	}
+\end{frame}	
 
 \section{Implementación}
 \begin{frame}[noframenumbering]
 \sectionpage
 \end{frame}
 
-\subsection{Comunicación}
-\begin{frame}{Software intermediario - X-Plane}
-\begin{itemize}
-	\item Creado con la libreria de desarrollo para plug-ins de FSUIPC
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Software intermediario - Microcontrolador}
-\begin{itemize}
-	\item Creado con libreria general para comunicación Serial
-	\item "" para comunicación por red (Windows Sockets 2)
-\end{itemize}
-\end{frame}
-
-\subsection{Protocolo}
-\begin{frame}{Comandos básicos}
-\begin{itemize}
-	\item Monitorear variables
-	\item Controlar variables
-\end{itemize}
-\end{frame}
-
-\subsection{QoL}
-\begin{frame}{Funcionalidad QoL}
-Interfaz grafica que muestra si esta conectado con el simulador, con el microcontrolador, los mensajes que recibe y un terminal para probar el envio y recepcion de mensajes
-\end{frame}
-
-\begin{frame}
-\begin{figure}[t]
+\begin{frame}{inoFS}
 	\centering
-	\includegraphics[width=0.8\textwidth]{fssp.png}
-\end{figure}
+	\includegraphics[width=0.6\textwidth]{inofs-1.PNG}
+\end{frame}
+
+\subsection{Características}
+
+\begin{frame}{inoFS}
+Características
+\begin{itemize}
+	\item <2-> Fácil instalación.
+	\item <3-> Abre canales Serial y UDP por red local.
+	\item <4-> Permite el acceso a variables internas del simulador por medio de FSUIPC.
+	\item <5-> Interfaz gráfica sencilla para ayudar a identificar problemas.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{inoFS}
+	\begin{columns}
+	\begin{column}{0.45\textwidth}{
+		\begin{figure}[t]
+			\centering
+			\includegraphics[width=1\textwidth]{inofs-clients.PNG}
+			\caption{Pestaña Clientes}
+	\end{figure}
+	}
+	\end{column}
+	\begin{column}{0.45\textwidth}{
+		\begin{figure}[t]
+			\centering
+			\includegraphics[width=0.8\textwidth]{inofs-comms.PNG}
+			\caption{Pestaña Comunicaciones}
+		\end{figure}
+	}
+	\end{column}
+	\end{columns}
+	\end{frame}
+
+\begin{frame}{Protocolo}
+\begin{itemize}
+	\visible<2->{
+		\item Mensajes estructurados
+		\begin{itemize}
+			\item Lectura
+			\item Escritura
+			\item Monitorear (Lectura continua)
+			\item Controlar (Escritura continua)
+		\end{itemize}
+	}
+	\visible<3->{
+		\item Comandos enviados como cadenas de caracteres
+		\item Datos enviados como bytes crudos
+	}
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Protocolo - Comando Escribir}
+	\begin{lstlisting}[language=Python]
+		# Header de mensaje
+		header = bytes("inofs", "ascii")
+		# Comando con variables a sobreescribir
+		cmd = bytes("fW;310A:c;089A:s;", "ascii")
+		# Variables
+		input = 8
+		throttle = (2/10) * 16384
+		data = bytes(struct.pack("<ff", input, throttle), "ascii")
+		# Evaluar largo del mensaje
+		size = struct.pack("<i", len(cmd + data))
+		# Empacar y enviar
+		msg = header + size + cmd + data
+		sys.stdout.buffer.write(msg)
+	\end{lstlisting}
+	Mensaje enviado por Serial\\
+	\say{header} + \say{bytes del mensaje} + \say{comando} + \say{datos}
+\end{frame}
+
+\begin{frame}{Documentación}
+\begin{itemize}
+	\item Lista de variables de FSUIPC\\
+	\url{https://www.projectmagenta.com/all-fsuipc-offsets/}
+	\item Documentación inoFS en repositorio
+	\url{https://github.com/qgerman2/inoFS}
+\end{itemize}
+	
+	
 \end{frame}
 
 \section{Conclusión}
@@ -313,8 +381,12 @@ Interfaz grafica que muestra si esta conectado con el simulador, con el microcon
 \sectionpage
 \end{frame}
 
-\begin{frame}{Objetivos}
-Se establece el protocolo de comunicación entre el sistema 
+\begin{frame}{Conclusión}
+\begin{itemize}
+	\item<2-> Se establece el protocolo de comunicación de acuerdo a las condiciones de diseño.
+	\item<3-> El programa es funcional, pero necesita más desarrollo.
+	\item<4-> Con debida documentación, el programa podría ser utilizado por la comunidad.
+\end{itemize}
 \end{frame}
 
 \begin{frame}[noframenumbering]
